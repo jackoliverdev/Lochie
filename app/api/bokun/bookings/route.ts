@@ -82,36 +82,68 @@ async function fetchDetailedBookingInfo(confirmationCode: string, domain: string
   }
 }
 
-// Transform GraphQL booking data enhanced with REST API details
+// Transform GraphQL booking data enhanced with any available fields
 function transformEnhancedBooking(graphqlBooking: any, restApiBooking: any = null): TransformedBooking {
   const customer = graphqlBooking.customer || {};
   const payment = graphqlBooking.payments?.[0] || {};
+  const activity = graphqlBooking.activity || graphqlBooking.product || {};
   
   // Use REST API data if available, fallback to GraphQL data
   const restCustomer = restApiBooking?.customer || {};
   const restActivityBooking = restApiBooking?.activityBookings?.[0] || {};
   const restProduct = restActivityBooking?.activity || {};
   
+  // Extract email from multiple possible GraphQL fields
+  const email = customer.email || customer.emailAddress || restCustomer.email || 'Email not available';
+  
+  // Extract phone from multiple possible GraphQL fields
+  const phone = customer.phoneNumber || customer.phone || customer.mobile || restCustomer.phoneNumber || 'No phone provided';
+  
+  // Extract dates from multiple possible GraphQL fields
+  const date = graphqlBooking.travelDate || graphqlBooking.startDate || graphqlBooking.bookingDate || 
+               restActivityBooking.startDate || 'Date TBC';
+  
+  // Extract product/activity name
+  const tripType = activity.title || activity.name || restProduct.title || 'Full Day Charter';
+  
+  // Extract participant count from multiple possible fields
+  const guests = graphqlBooking.totalGuests || graphqlBooking.participantCount || 
+                 graphqlBooking.guestCount || restActivityBooking.participants || 1;
+  
+  // Extract payment amount with currency
+  const paymentAmount = payment.amount;
+  const currency = payment.currency || graphqlBooking.currency || 'GBP';
+  const amount = paymentAmount ? 
+    `${currency === 'GBP' ? '£' : currency + ' '}${parseFloat(paymentAmount).toFixed(2)}` : 
+    restApiBooking?.totalPrice ? `£${parseFloat(restApiBooking.totalPrice).toFixed(2)}` : '£50.00';
+  
   return {
     id: graphqlBooking.id || 'unknown',
     bookingId: `JAC-${graphqlBooking.confirmationCode || graphqlBooking.id?.slice(-6) || 'UNKNOWN'}`,
     confirmationNumber: graphqlBooking.confirmationCode || 'TBC',
     customerName: `${customer.firstName || restCustomer.firstName || ''} ${customer.lastName || restCustomer.lastName || ''}`.trim() || 'Unknown Customer',
-    email: restCustomer.email || 'Email not available', // REST API should have email
-    phone: customer.phoneNumber || restCustomer.phoneNumber || 'No phone provided',
-    date: restActivityBooking.startDate || 'Date TBC', // REST API should have dates
-    time: restActivityBooking.startTime || 'Time TBC', // REST API should have times
-    guests: restActivityBooking.participants || 1, // REST API should have participant count
+    email,
+    phone,
+    date,
+    time: 'Time TBC', // GraphQL doesn't seem to have time fields
+    guests,
     status: (graphqlBooking.status || restApiBooking?.status || 'confirmed').toLowerCase().replace('_', ' '),
-    paymentStatus: payment.amount || restApiBooking?.paidAmount ? 'paid' : 'pending',
-    amount: payment.amount ? `£${parseFloat(payment.amount).toFixed(2)}` : 
-            restApiBooking?.totalPrice ? `£${parseFloat(restApiBooking.totalPrice).toFixed(2)}` : '£50.00',
-    tripType: restProduct.title || 'Full Day Charter', // REST API should have product title
-    createdAt: restApiBooking?.created || graphqlBooking.createdAt,
-    updatedAt: restApiBooking?.lastModified || graphqlBooking.updatedAt,
+    paymentStatus: paymentAmount || restApiBooking?.paidAmount ? 'paid' : 'pending',
+    amount,
+    tripType,
+    createdAt: graphqlBooking.createdDate || graphqlBooking.modifiedDate || restApiBooking?.created,
+    updatedAt: graphqlBooking.modifiedDate || restApiBooking?.lastModified,
     _raw: {
       graphql: graphqlBooking,
-      restApi: restApiBooking
+      restApi: restApiBooking,
+      extractedFields: {
+        hasEmail: !!customer.email || !!customer.emailAddress,
+        hasPhone: !!customer.phoneNumber || !!customer.phone || !!customer.mobile,
+        hasDate: !!graphqlBooking.travelDate || !!graphqlBooking.startDate || !!graphqlBooking.bookingDate,
+        hasActivity: !!activity.title || !!activity.name,
+        hasGuests: !!graphqlBooking.totalGuests || !!graphqlBooking.participantCount || !!graphqlBooking.guestCount,
+        hasCurrency: !!payment.currency || !!graphqlBooking.currency
+      }
     }
   };
 }

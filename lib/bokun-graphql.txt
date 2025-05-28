@@ -138,8 +138,9 @@ class BokunGraphQLClient {
   } = {}) {
     const { limit = 10 } = options;
 
-    // Enhanced minimal query - adding more fields that might exist
-    const enhancedMinimalQuery = `
+    // Use only the minimal working query based on validation errors
+    // Removing all the fields that caused validation errors
+    const minimalQuery = `
       query GetBookings($first: Int!) {
         bookings(first: $first) {
           totalCount
@@ -148,104 +149,27 @@ class BokunGraphQLClient {
               id
               confirmationCode
               status
-              # Try to get customer details with more fields
               customer {
                 id
                 firstName
                 lastName
                 phoneNumber
-                # Try additional customer fields that might exist
-                phone
-                mobile
-                emailAddress
-                email
-                contactDetails
               }
-              # Try to get more payment information
               payments {
                 id
                 amount
-                currency
-                paymentDate
-                paymentMethod
-                paymentType
               }
-              # Try to get booking dates/times
-              bookingDate
-              createdDate
-              modifiedDate
-              travelDate
-              startDate
-              endDate
-              # Try to get product/activity information
-              activity {
-                id
-                title
-                name
-              }
-              product {
-                id
-                title
-                name
-              }
-              # Try to get participant information
-              participants
-              participantCount
-              guestCount
-              totalGuests
-              # Try to get more booking details
-              notes
-              specialRequests
-              language
-              currency
             }
           }
         }
       }
     `;
 
-    console.log('🔍 Making enhanced GraphQL query for bookings...');
-    
-    try {
-      // First try the enhanced query
-      return await this.query({
-        query: enhancedMinimalQuery,
-        variables: { first: limit }
-      });
-    } catch (enhancedError) {
-      console.warn('⚠️ Enhanced query failed, falling back to minimal query:', enhancedError);
-      
-      // Fallback to the original minimal query if enhanced fails
-      const fallbackQuery = `
-        query GetBookings($first: Int!) {
-          bookings(first: $first) {
-            totalCount
-            edges {
-              node {
-                id
-                confirmationCode
-                status
-                customer {
-                  id
-                  firstName
-                  lastName
-                  phoneNumber
-                }
-                payments {
-                  id
-                  amount
-                }
-              }
-            }
-          }
-        }
-      `;
-      
-      return await this.query({
-        query: fallbackQuery,
-        variables: { first: limit }
-      });
-    }
+    console.log('🔍 Making minimal GraphQL query for bookings...');
+    return this.query({
+      query: minimalQuery,
+      variables: { first: limit }
+    });
   }
 
   // Get customers with GraphQL
