@@ -129,87 +129,46 @@ class BokunGraphQLClient {
     }
   }
 
-  // Get bookings with a simpler, safer query
+  // Get bookings with a corrected, minimal query based on validation errors
   async getBookings(options: {
     limit?: number;
     offset?: number;
     dateFrom?: string;
     dateTo?: string;
   } = {}) {
-    const { limit = 10, offset = 0 } = options;
+    const { limit = 10 } = options;
 
-    // Try a much simpler query first
-    const simpleQuery = `
-      query {
-        bookings {
-          totalCount
-        }
-      }
-    `;
-
-    try {
-      console.log('🔍 Testing simple bookings query...');
-      const simpleResult = await this.query({ query: simpleQuery });
-      console.log('Simple query result:', simpleResult);
-    } catch (error) {
-      console.error('❌ Simple query failed:', error);
-    }
-
-    // Now try the full query with proper Bokun schema
-    const query = `
-      query GetBookings($first: Int, $skip: Int) {
-        bookings(first: $first, skip: $skip) {
+    // Use only the minimal working query based on validation errors
+    // Removing all the fields that caused validation errors
+    const minimalQuery = `
+      query GetBookings($first: Int!) {
+        bookings(first: $first) {
           totalCount
           edges {
             node {
               id
               confirmationCode
               status
-              totalPrice {
-                amount
-                currency
-              }
-              createdAt
-              updatedAt
               customer {
                 id
                 firstName
                 lastName
-                email
                 phoneNumber
-              }
-              productBookings {
-                id
-                product {
-                  id
-                  title
-                }
-                startDate
-                startTime
-                participants
               }
               payments {
                 id
-                amount {
-                  amount
-                  currency
-                }
-                status
-                type
+                amount
               }
             }
-          }
-          pageInfo {
-            hasNextPage
-            hasPreviousPage
           }
         }
       }
     `;
 
+    console.log('🔍 Making minimal GraphQL query for bookings...');
     return this.query({
-      query,
-      variables: { first: limit, skip: offset }
+      query: minimalQuery,
+      variables: { first: limit }
     });
   }
 
@@ -218,22 +177,17 @@ class BokunGraphQLClient {
     limit?: number;
     offset?: number;
   } = {}) {
-    const { limit = 20, offset = 0 } = options;
+    const { limit = 20 } = options;
 
     const query = `
-      query GetCustomers($limit: Int, $offset: Int) {
-        customers(first: $limit, skip: $offset) {
+      query GetCustomers($first: Int!) {
+        customers(first: $first) {
           edges {
             node {
               id
               firstName
               lastName
-              email
               phoneNumber
-              createdAt
-              bookings {
-                totalCount
-              }
             }
           }
         }
@@ -242,7 +196,7 @@ class BokunGraphQLClient {
 
     return this.query({
       query,
-      variables: { limit, offset }
+      variables: { first: limit }
     });
   }
 

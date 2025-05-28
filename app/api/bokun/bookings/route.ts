@@ -20,26 +20,25 @@ interface TransformedBooking {
   _raw: any;
 }
 
-// Transform GraphQL booking data to our admin format
+// Transform GraphQL booking data to our admin format with minimal available fields
 function transformGraphQLBooking(booking: any): TransformedBooking {
   const customer = booking.customer || {};
-  const productBooking = booking.productBookings?.[0] || {};
   const payment = booking.payments?.[0] || {};
   
   return {
-    id: booking.id,
+    id: booking.id || 'unknown',
     bookingId: `JAC-${booking.confirmationCode || booking.id?.slice(-6) || 'UNKNOWN'}`,
     confirmationNumber: booking.confirmationCode || 'TBC',
     customerName: `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || 'Unknown Customer',
-    email: customer.email || 'No email provided',
+    email: 'Not available via GraphQL', // Field doesn't exist in schema
     phone: customer.phoneNumber || 'No phone provided',
-    date: productBooking.startDate || booking.createdAt?.split('T')[0] || 'TBC',
-    time: productBooking.startTime || 'TBC',
-    guests: productBooking.participants || 1,
+    date: 'TBC', // No date fields available in minimal schema
+    time: 'TBC', // No time fields available in minimal schema
+    guests: 1, // Default to 1 since no participant data available
     status: (booking.status || 'confirmed').toLowerCase().replace('_', ' '),
-    paymentStatus: payment.status?.toLowerCase() === 'paid' || booking.status?.toLowerCase() === 'confirmed' ? 'paid' : 'pending',
-    amount: booking.totalPrice?.amount ? `£${booking.totalPrice.amount.toFixed(2)}` : '£50.00',
-    tripType: productBooking.product?.title || 'Full Day Charter',
+    paymentStatus: payment.amount ? 'paid' : 'pending',
+    amount: payment.amount ? `£${parseFloat(payment.amount).toFixed(2)}` : '£50.00',
+    tripType: 'Full Day Charter', // Default since no product info available
     createdAt: booking.createdAt,
     updatedAt: booking.updatedAt,
     _raw: booking
@@ -94,7 +93,7 @@ export async function GET(request: NextRequest) {
 
     try {
       // Fetch real booking data via GraphQL
-      console.log('🔍 Attempting to fetch bookings with GraphQL...');
+      console.log('🔍 Attempting to fetch bookings with simplified GraphQL query...');
       console.log('Parameters:', { limit, offset, dateFrom, dateTo });
       
       const graphqlResponse = await bokunGraphQL.getBookings({
@@ -161,16 +160,17 @@ export async function GET(request: NextRequest) {
           showing: bookings.length,
           limit: limit,
           offset: offset,
-          hasNextPage: graphqlResponse.data.bookings.pageInfo?.hasNextPage || false
+          hasNextPage: false // We don't have pageInfo anymore
         },
         source: 'Bokun GraphQL API',
-        message: `✅ Fetched ${bookings.length} bookings successfully (${totalCount} total)`,
+        message: `✅ Successfully connected to Bokun GraphQL! Found ${bookings.length} bookings (${totalCount} total). Limited field data due to schema constraints.`,
         authStatus: oauthStatus,
         apiInfo: {
           endpoint: `https://${oauthStatus.domain}.bokun.io/api/graphql`,
           method: 'GraphQL with OAuth',
           scopes: oauthStatus.scopes,
-          filters: { limit, offset, dateFrom, dateTo }
+          filters: { limit, offset, dateFrom, dateTo },
+          note: 'Using minimal field set due to GraphQL schema validation errors'
         }
       });
 
