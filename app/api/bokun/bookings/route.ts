@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { bokunGraphQL } from '@/lib/bokun-graphql';
+import crypto from 'crypto';
 
 interface TransformedBooking {
   id: string;
@@ -20,24 +21,60 @@ interface TransformedBooking {
   _raw: any;
 }
 
-// Enhanced function to fetch detailed booking info via REST API
-async function fetchDetailedBookingInfo(confirmationCode: string, accessToken: string, domain: string) {
+// Enhanced function to fetch detailed booking info via REST API with HMAC authentication
+async function fetchDetailedBookingInfo(confirmationCode: string, domain: string) {
   try {
-    const restApiUrl = `https://${domain}.bokun.io/booking.json/${confirmationCode}`;
+    const ACCESS_KEY = process.env.BOKUN_NATIVE_ACCESS_KEY;
+    const SECRET_KEY = process.env.BOKUN_NATIVE_SECRET_KEY;
+    
+    if (!ACCESS_KEY || !SECRET_KEY) {
+      console.warn('⚠️ Missing native Bokun API credentials for enhanced booking data');
+      return null;
+    }
+
+    // Create date in the required format: "yyyy-MM-dd HH:mm:ss"
+    const now = new Date();
+    const utcDate = now.getUTCFullYear() + '-' + 
+                    String(now.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+                    String(now.getUTCDate()).padStart(2, '0') + ' ' +
+                    String(now.getUTCHours()).padStart(2, '0') + ':' + 
+                    String(now.getUTCMinutes()).padStart(2, '0') + ':' + 
+                    String(now.getUTCSeconds()).padStart(2, '0');
+
+    // Build the API path for booking details
+    const path = `/booking.json/${confirmationCode}`;
+    const httpMethod = 'GET';
+
+    // Create HMAC signature
+    const stringToSign = utcDate + ACCESS_KEY + httpMethod + path;
+    const signature = crypto
+      .createHmac('sha1', SECRET_KEY)
+      .update(stringToSign)
+      .digest('base64');
+
+    // Set up headers for native Bokun API
+    const headers = {
+      'X-Bokun-Date': utcDate,
+      'X-Bokun-AccessKey': ACCESS_KEY,
+      'X-Bokun-Signature': signature,
+      'Content-Type': 'application/json;charset=UTF-8'
+    };
+
+    const restApiUrl = `https://api.bokun.io${path}`;
+    console.log(`🔍 Fetching detailed booking via HMAC: ${restApiUrl}`);
     
     const response = await fetch(restApiUrl, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
+      method: httpMethod,
+      headers
     });
 
     if (!response.ok) {
-      console.warn(`⚠️ REST API call failed for booking ${confirmationCode}: ${response.status}`);
+      console.warn(`⚠️ HMAC REST API call failed for booking ${confirmationCode}: ${response.status}`);
       return null;
     }
 
     const detailedBooking = await response.json();
+    console.log(`✅ Enhanced booking data received for ${confirmationCode}`);
     return detailedBooking;
   } catch (error) {
     console.warn(`⚠️ Failed to fetch detailed info for booking ${confirmationCode}:`, error);
@@ -168,12 +205,6 @@ export async function GET(request: NextRequest) {
       if (enhanced && edges.length > 0) {
         console.log('🔍 Step 2: Enhancing with REST API calls for detailed booking info...');
         
-        // Get access token for REST API calls
-        const accessToken = process.env.BOKUN_ACCESS_TOKEN;
-        if (!accessToken) {
-          throw new Error('Access token not available for REST API calls');
-        }
-
         // Fetch detailed info for each booking
         const enhancementPromises = edges.map(async (edge: any) => {
           const graphqlBooking = edge.node;
@@ -185,7 +216,6 @@ export async function GET(request: NextRequest) {
 
           const detailedBooking = await fetchDetailedBookingInfo(
             confirmationCode, 
-            accessToken, 
             oauthStatus.domain
           );
 
