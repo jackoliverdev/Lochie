@@ -33,6 +33,14 @@ class BokunGraphQLClient {
   // Load access token from storage
   private async loadAccessToken(): Promise<string | null> {
     try {
+      // First try environment variable (for production/Vercel)
+      const envToken = process.env.BOKUN_ACCESS_TOKEN;
+      if (envToken) {
+        console.log('✅ Access token loaded from environment variable');
+        return envToken;
+      }
+
+      // Fallback to file storage (for development)
       const tokenPath = path.join(process.cwd(), '.bokun-tokens.json');
       const tokensContent = await fs.readFile(tokenPath, 'utf-8');
       const tokens = JSON.parse(tokensContent);
@@ -43,7 +51,7 @@ class BokunGraphQLClient {
         return null;
       }
 
-      console.log('✅ Access token loaded for domain:', this.domain);
+      console.log('✅ Access token loaded from file storage');
       return tokenData.access_token;
     } catch (error) {
       console.error('❌ Failed to load access token:', error);
@@ -211,6 +219,21 @@ class BokunGraphQLClient {
     domain: string;
   }> {
     try {
+      // First check environment variables (for production)
+      const envToken = process.env.BOKUN_ACCESS_TOKEN;
+      const envVendorId = process.env.BOKUN_VENDOR_ID;
+      const envScopes = process.env.BOKUN_OAUTH_SCOPES;
+      
+      if (envToken) {
+        return {
+          isAuthenticated: true,
+          scopes: envScopes || 'BOOKINGS_READ,CUSTOMERS_READ,CHECKOUTS_READ,PRODUCTS_READ',
+          vendorId: envVendorId || 'VmVuZG9yVHlwZToxMjA1OTE',
+          domain: this.domain
+        };
+      }
+
+      // Fallback to file storage (for development)
       const tokenPath = path.join(process.cwd(), '.bokun-tokens.json');
       const tokensContent = await fs.readFile(tokenPath, 'utf-8');
       const tokens = JSON.parse(tokensContent);

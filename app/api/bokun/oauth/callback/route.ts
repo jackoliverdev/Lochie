@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
           <style>
             body { 
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-              max-width: 600px; 
+              max-width: 800px; 
               margin: 50px auto; 
               padding: 20px;
               background: #f8fafc;
@@ -157,15 +157,22 @@ export async function GET(request: NextRequest) {
               border-radius: 12px;
               padding: 32px;
               box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+              margin-bottom: 20px;
             }
             .success { color: #10b981; }
             .info { color: #6b7280; margin-top: 16px; }
-            .scopes { 
+            .scopes, .token { 
               background: #f3f4f6; 
               padding: 12px; 
               border-radius: 6px; 
               margin: 16px 0;
               font-family: monospace;
+              font-size: 12px;
+              word-break: break-all;
+            }
+            .token {
+              background: #fef3c7;
+              border: 1px solid #f59e0b;
             }
             .button {
               display: inline-block;
@@ -175,6 +182,26 @@ export async function GET(request: NextRequest) {
               border-radius: 6px;
               text-decoration: none;
               margin-top: 20px;
+              margin-right: 10px;
+            }
+            .copy-btn {
+              background: #10b981;
+              cursor: pointer;
+              border: none;
+              color: white;
+              padding: 8px 16px;
+              border-radius: 4px;
+              font-size: 12px;
+            }
+            .env-vars {
+              background: #1f2937;
+              color: #f9fafb;
+              padding: 16px;
+              border-radius: 8px;
+              margin: 16px 0;
+              font-family: monospace;
+              font-size: 12px;
+              white-space: pre-line;
             }
           </style>
         </head>
@@ -189,13 +216,48 @@ export async function GET(request: NextRequest) {
               <strong>Granted Scopes:</strong>
               <div class="scopes">${tokenData.scope}</div>
             </div>
+          </div>
+
+          <div class="card">
+            <h3>🔧 Production Setup Required</h3>
+            <p>To use real booking data in production, add these environment variables to your Vercel dashboard:</p>
             
-            <p>You can now access real booking data in your admin dashboard.</p>
+            <div class="env-vars">BOKUN_ACCESS_TOKEN=${tokenData.access_token}
+BOKUN_OAUTH_SCOPES=${tokenData.scope}
+BOKUN_VENDOR_ID=${tokenData.vendor_id}</div>
             
+            <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Environment Variables</button>
+            
+            <p style="margin-top: 16px; font-size: 14px; color: #6b7280;">
+              1. Go to your <a href="https://vercel.com/dashboard" target="_blank">Vercel Dashboard</a><br>
+              2. Select your project → Settings → Environment Variables<br>
+              3. Add the three variables above<br>
+              4. Redeploy your application
+            </p>
+          </div>
+
+          <div style="text-align: center;">
             <a href="https://lochie.vercel.app/app" class="button">
               Go to Admin Dashboard
             </a>
+            <a href="https://vercel.com/dashboard" class="button" target="_blank">
+              Open Vercel Dashboard
+            </a>
           </div>
+
+          <script>
+            function copyToClipboard() {
+              const envVars = \`BOKUN_ACCESS_TOKEN=${tokenData.access_token}
+BOKUN_OAUTH_SCOPES=${tokenData.scope}
+BOKUN_VENDOR_ID=${tokenData.vendor_id}\`;
+              navigator.clipboard.writeText(envVars).then(() => {
+                document.querySelector('.copy-btn').textContent = '✅ Copied!';
+                setTimeout(() => {
+                  document.querySelector('.copy-btn').textContent = '📋 Copy Environment Variables';
+                }, 2000);
+              });
+            }
+          </script>
         </body>
       </html>
     `;
