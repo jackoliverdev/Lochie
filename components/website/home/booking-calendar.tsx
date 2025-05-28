@@ -91,7 +91,7 @@ const BookingCalendar = () => {
   const [bookingStep, setBookingStep] = useState(1); // 1: Select Date/Time, 2: Guest Details, 3: Confirmation
   const [booking, setBooking] = useState<BookingDetails>({
     selectedSlot: null,
-    guests: 2,
+    guests: 1,
     customerInfo: {
       firstName: '',
       lastName: '',
@@ -99,7 +99,6 @@ const BookingCalendar = () => {
       phone: ''
     },
     guestDetails: [
-      { firstName: '', lastName: '', email: '', phone: '' },
       { firstName: '', lastName: '', email: '', phone: '' }
     ]
   });
@@ -214,7 +213,7 @@ const BookingCalendar = () => {
   // Get availability status for a day
   const getAvailabilityStatus = (day: CalendarDay) => {
     if (!day.availability || day.availability.length === 0) return 'unavailable';
-    const hasAvailable = day.availability.some(slot => !slot.soldOut && !slot.unavailable && slot.availabilityCount > slot.bookedParticipants);
+    const hasAvailable = day.availability.some(slot => !slot.soldOut && !slot.unavailable && slot.availabilityCount > 0);
     return hasAvailable ? 'available' : 'limited';
   };
 
@@ -277,10 +276,33 @@ const BookingCalendar = () => {
         throw new Error(result.error || 'Booking failed');
       }
 
-      // Store booking result for confirmation display
+      // Check if payment is required (Stripe checkout)
+      if (result.step === 'payment_required' && result.checkout_url) {
+        console.log('💳 Redirecting to Stripe checkout:', result.checkout_url);
+        
+        // Store booking data for when user returns from payment
+        sessionStorage.setItem('pendingBooking', JSON.stringify({
+          booking: result.booking,
+          bookingData: bookingData,
+          selectedDate: selectedDate.toISOString(),
+          selectedSlot: booking.selectedSlot
+        }));
+        
+        // Redirect to Stripe checkout
+        window.location.href = result.checkout_url;
+        return;
+      }
+
+      // Handle booking without payment (fallback)
       setBooking(prev => ({
         ...prev,
-        bookingResult: result
+        bookingResult: {
+          success: true,
+          bookingId: result.booking?.uuid || result.booking?.id || 'Unknown',
+          confirmationNumber: result.booking?.supplierReference || 'Unknown',
+          status: result.booking?.status || 'Confirmed',
+          message: result.message || 'Booking confirmed successfully'
+        }
       }));
       
       // Move to confirmation step
@@ -299,7 +321,7 @@ const BookingCalendar = () => {
     setSelectedDate(null);
     setBooking({
       selectedSlot: null,
-      guests: 2,
+      guests: 1,
       customerInfo: {
         firstName: '',
         lastName: '',
@@ -307,7 +329,6 @@ const BookingCalendar = () => {
         phone: ''
       },
       guestDetails: [
-        { firstName: '', lastName: '', email: '', phone: '' },
         { firstName: '', lastName: '', email: '', phone: '' }
       ],
       bookingResult: undefined
@@ -529,7 +550,7 @@ const BookingCalendar = () => {
                         <button
                           key={index}
                           onClick={() => selectTimeSlot(slot)}
-                          disabled={slot.soldOut || slot.unavailable || slot.availabilityCount <= slot.bookedParticipants}
+                          disabled={slot.soldOut || slot.unavailable || slot.availabilityCount <= 0}
                           className="w-full border rounded-2xl p-4 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <div className="flex items-center justify-between mb-2">
@@ -549,10 +570,10 @@ const BookingCalendar = () => {
                             <div className="flex items-center gap-2">
                               <Users className="w-4 h-4 text-gray-500" />
                               <span className="text-sm text-gray-600">
-                                {slot.availabilityCount - slot.bookedParticipants}/{slot.availabilityCount} available
+                                {slot.availabilityCount} available
                               </span>
                             </div>
-                            {(slot.availabilityCount - slot.bookedParticipants) > 0 && (
+                            {(slot.availabilityCount > 0) && (
                               <ArrowRight className="w-4 h-4 text-blue-500" />
                             )}
                           </div>
@@ -628,7 +649,7 @@ const BookingCalendar = () => {
                   </div>
                   <div>
                     <div><strong>Duration:</strong> 8 hours</div>
-                    <div><strong>Capacity:</strong> {booking.selectedSlot.availabilityCount - booking.selectedSlot.bookedParticipants}/{booking.selectedSlot.availabilityCount} available</div>
+                    <div><strong>Capacity:</strong> {booking.selectedSlot.availabilityCount} available</div>
                   </div>
                 </div>
               </div>
