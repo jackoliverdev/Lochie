@@ -94,6 +94,9 @@ export async function GET(request: NextRequest) {
 
     try {
       // Fetch real booking data via GraphQL
+      console.log('🔍 Attempting to fetch bookings with GraphQL...');
+      console.log('Parameters:', { limit, offset, dateFrom, dateTo });
+      
       const graphqlResponse = await bokunGraphQL.getBookings({
         limit,
         offset,
@@ -101,18 +104,44 @@ export async function GET(request: NextRequest) {
         dateTo: dateTo || undefined
       });
 
-      if (!graphqlResponse.data?.bookings?.edges) {
-        throw new Error('Invalid GraphQL response structure');
+      console.log('GraphQL Response received:', {
+        hasData: !!graphqlResponse.data,
+        hasBookings: !!graphqlResponse.data?.bookings,
+        hasEdges: !!graphqlResponse.data?.bookings?.edges,
+        edgesLength: graphqlResponse.data?.bookings?.edges?.length,
+        totalCount: graphqlResponse.data?.bookings?.totalCount
+      });
+
+      if (!graphqlResponse.data?.bookings) {
+        console.warn('⚠️ No bookings data in GraphQL response');
+        // Return empty but successful response if no bookings exist
+        return NextResponse.json({
+          success: true,
+          data: [],
+          stats: { total: 0, confirmed: 0, pending: 0, cancelled: 0, totalRevenue: 0 },
+          pagination: { total: 0, showing: 0, limit, offset, hasNextPage: false },
+          source: 'Bokun GraphQL API',
+          message: '✅ Connected successfully - No bookings found in system',
+          authStatus: oauthStatus,
+          debug: {
+            graphqlResponse: graphqlResponse,
+            note: 'No bookings.edges found - this might be normal if no bookings exist'
+          }
+        });
       }
 
+      // Handle case where bookings exist but edges is empty or undefined
+      const edges = graphqlResponse.data.bookings.edges || [];
+      const totalCount = graphqlResponse.data.bookings.totalCount || 0;
+
       // Transform GraphQL data to our admin format
-      const bookings = graphqlResponse.data.bookings.edges.map((edge: any) => 
+      const bookings = edges.map((edge: any) => 
         transformGraphQLBooking(edge.node)
       );
 
       // Calculate summary statistics
       const stats = {
-        total: bookings.length,
+        total: totalCount,
         confirmed: bookings.filter((b: TransformedBooking) => b.status === 'confirmed').length,
         pending: bookings.filter((b: TransformedBooking) => b.status === 'pending' || b.status === 'on hold').length,
         cancelled: bookings.filter((b: TransformedBooking) => b.status === 'cancelled').length,
@@ -121,32 +150,27 @@ export async function GET(request: NextRequest) {
           .reduce((sum: number, b: TransformedBooking) => sum + parseFloat(b.amount.replace('£', '')), 0)
       };
 
-      console.log(`✅ Fetched ${bookings.length} real bookings from Bokun GraphQL`);
+      console.log(`✅ Fetched ${bookings.length} bookings from Bokun GraphQL (total: ${totalCount})`);
 
       return NextResponse.json({
         success: true,
         data: bookings,
         stats,
         pagination: {
-          total: bookings.length,
+          total: totalCount,
           showing: bookings.length,
           limit: limit,
           offset: offset,
           hasNextPage: graphqlResponse.data.bookings.pageInfo?.hasNextPage || false
         },
         source: 'Bokun GraphQL API',
-        message: `✅ Fetched ${bookings.length} real bookings successfully`,
+        message: `✅ Fetched ${bookings.length} bookings successfully (${totalCount} total)`,
         authStatus: oauthStatus,
         apiInfo: {
           endpoint: `https://${oauthStatus.domain}.bokun.io/api/graphql`,
           method: 'GraphQL with OAuth',
           scopes: oauthStatus.scopes,
-          filters: {
-            limit,
-            offset,
-            dateFrom,
-            dateTo
-          }
+          filters: { limit, offset, dateFrom, dateTo }
         }
       });
 

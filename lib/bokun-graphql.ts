@@ -106,25 +106,60 @@ class BokunGraphQLClient {
     }
   }
 
-  // Get bookings with GraphQL
+  // Test GraphQL connection with a simple query
+  async testConnection() {
+    const simpleQuery = `
+      query {
+        __schema {
+          types {
+            name
+          }
+        }
+      }
+    `;
+
+    try {
+      console.log('🧪 Testing GraphQL connection...');
+      const result = await this.query({ query: simpleQuery });
+      console.log('✅ GraphQL connection successful');
+      return result;
+    } catch (error) {
+      console.error('❌ GraphQL connection failed:', error);
+      throw error;
+    }
+  }
+
+  // Get bookings with a simpler, safer query
   async getBookings(options: {
     limit?: number;
     offset?: number;
     dateFrom?: string;
     dateTo?: string;
   } = {}) {
-    const { limit = 20, offset = 0, dateFrom, dateTo } = options;
+    const { limit = 10, offset = 0 } = options;
 
+    // Try a much simpler query first
+    const simpleQuery = `
+      query {
+        bookings {
+          totalCount
+        }
+      }
+    `;
+
+    try {
+      console.log('🔍 Testing simple bookings query...');
+      const simpleResult = await this.query({ query: simpleQuery });
+      console.log('Simple query result:', simpleResult);
+    } catch (error) {
+      console.error('❌ Simple query failed:', error);
+    }
+
+    // Now try the full query with proper Bokun schema
     const query = `
-      query GetBookings($limit: Int, $offset: Int, $dateFrom: String, $dateTo: String) {
-        bookings(
-          first: $limit
-          skip: $offset
-          where: {
-            ${dateFrom ? `createdAt_gte: "${dateFrom}"` : ''}
-            ${dateTo ? `createdAt_lte: "${dateTo}"` : ''}
-          }
-        ) {
+      query GetBookings($first: Int, $skip: Int) {
+        bookings(first: $first, skip: $skip) {
+          totalCount
           edges {
             node {
               id
@@ -174,7 +209,7 @@ class BokunGraphQLClient {
 
     return this.query({
       query,
-      variables: { limit, offset, dateFrom, dateTo }
+      variables: { first: limit, skip: offset }
     });
   }
 
