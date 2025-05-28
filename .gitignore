@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Bokun OAuth tokens (contains sensitive access tokens)
+.bokun-tokens.json
