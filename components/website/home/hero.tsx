@@ -1,35 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Phone, MapPin, Calendar, Star, Waves, Anchor } from 'lucide-react';
 import Image from 'next/image';
 
 const Hero = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-  const [motionEnabled, setMotionEnabled] = useState(true);
   
   const images = [
     '/gili/gilit2.jpg',
     '/gili/gilit1.webp'
   ];
-
-  // Check if mobile and disable motion if needed
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent);
-      setIsMobile(mobile);
-      
-      // Disable complex animations on mobile for better performance
-      if (mobile) {
-        setMotionEnabled(false);
-      }
-    };
-    
-    checkMobile();
-  }, []);
 
   // Auto-rotate background images
   useEffect(() => {
@@ -47,41 +29,6 @@ const Hero = () => {
     "Island hopping adventures",
     "Onboard mini bar & sound system"
   ];
-
-  const experienceCards = [
-    {
-      icon: "🐢",
-      title: "Marine Adventures",
-      description: "Swim with turtles, manta rays & tropical fish",
-      bgColor: "bg-cyan-500/20"
-    },
-    {
-      icon: "🍹", 
-      title: "Luxury Amenities",
-      description: "Mini bar, sound system & premium comfort",
-      bgColor: "bg-blue-500/20"
-    },
-    {
-      icon: "🏄‍♂️",
-      title: "Water Sports", 
-      description: "Jet ski, wakeboarding & paddle boarding",
-      bgColor: "bg-purple-500/20"
-    }
-  ];
-
-  // Safe motion component wrapper
-  const SafeMotion = ({ children, className, ...motionProps }: any) => {
-    if (!motionEnabled || isMobile) {
-      return <div className={className}>{children}</div>;
-    }
-    
-    try {
-      return <motion.div className={className} {...motionProps}>{children}</motion.div>;
-    } catch (error) {
-      console.warn('Motion animation failed, falling back to static:', error);
-      return <div className={className}>{children}</div>;
-    }
-  };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -130,23 +77,13 @@ const Hero = () => {
           <div className="text-white space-y-8">
             
             {/* Badge */}
-            <SafeMotion
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 bg-cyan-500/20 backdrop-blur-sm border border-cyan-400/30 rounded-full px-4 py-2 text-cyan-200 text-sm font-medium"
-            >
+            <div className="inline-flex items-center gap-2 bg-cyan-500/20 backdrop-blur-sm border border-cyan-400/30 rounded-full px-4 py-2 text-cyan-200 text-sm font-medium">
               <Star className="w-4 h-4 fill-current" />
               <span>Luxury Boat Experience</span>
-            </SafeMotion>
+            </div>
 
             {/* Main Heading */}
-            <SafeMotion
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-4"
-            >
+            <div className="space-y-4">
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
                 <span className="block text-white">
                   Jasper{" "}
@@ -166,36 +103,23 @@ const Hero = () => {
                   From snorkeling with turtles to sunset cruises, create memories that last a lifetime.
                 </p>
               </div>
-            </SafeMotion>
+            </div>
 
             {/* Features Grid */}
-            <SafeMotion
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="grid grid-cols-2 gap-3"
-            >
+            <div className="grid grid-cols-2 gap-3">
               {features.map((feature, index) => (
-                <SafeMotion 
+                <div 
                   key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 + (index * 0.1) }}
                   className="flex items-center gap-2 text-sm text-gray-200 group hover:text-cyan-300 transition-colors"
                 >
                   <div className="w-2 h-2 bg-cyan-400 rounded-full group-hover:bg-cyan-300 transition-colors" />
                   <span>{feature}</span>
-                </SafeMotion>
+                </div>
               ))}
-            </SafeMotion>
+            </div>
 
             {/* CTA Buttons */}
-            <SafeMotion
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4 pt-4"
-            >
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button 
                 size="lg" 
                 className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-4 text-lg font-semibold shadow-2xl shadow-cyan-500/25 transition-all duration-300 hover:scale-105"
@@ -212,92 +136,72 @@ const Hero = () => {
                 <Phone className="w-5 h-5 mr-2" />
                 +44 7936 524299
               </Button>
-            </SafeMotion>
+            </div>
 
             {/* Location Badge */}
-            <SafeMotion
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1 }}
-              className="flex items-center gap-2 text-gray-300"
-            >
+            <div className="flex items-center gap-2 text-gray-300">
               <MapPin className="w-5 h-5 text-cyan-400" />
               <span className="text-sm">Gili Trawangan, Lombok, Indonesia</span>
-            </SafeMotion>
+            </div>
           </div>
 
           {/* Right Column - Experience Cards */}
-          <SafeMotion
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="space-y-6 lg:pl-8"
-          >
+          <div className="space-y-6 lg:pl-8">
             
             {/* Floating Experience Cards */}
             <div className="space-y-4">
-              {experienceCards.map((card, index) => (
-                <SafeMotion
-                  key={index}
-                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.6 + (index * 0.2) }}
-                  className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105"
-                >
-                  <div className="flex items-center gap-4">
-                    <SafeMotion 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.4, delay: 0.8 + (index * 0.2) }}
-                      className={`w-12 h-12 ${card.bgColor} rounded-xl flex items-center justify-center`}
-                    >
-                      <span className="text-2xl">{card.icon}</span>
-                    </SafeMotion>
-                    <div>
-                      <h3 className="text-white font-semibold text-lg">{card.title}</h3>
-                      <p className="text-gray-300 text-sm">{card.description}</p>
-                    </div>
+              
+              {/* Card 1 - Snorkeling */}
+              <div className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 animate-fade-in-up">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">🐢</span>
                   </div>
-                </SafeMotion>
-              ))}
+                  <div>
+                    <h3 className="text-white font-semibold text-lg">Marine Adventures</h3>
+                    <p className="text-gray-300 text-sm">Swim with turtles, manta rays & tropical fish</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2 - Luxury */}
+              <div className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 animate-fade-in-up delay-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">🍹</span>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold text-lg">Luxury Amenities</h3>
+                    <p className="text-gray-300 text-sm">Mini bar, sound system & premium comfort</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3 - Adventure */}
+              <div className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 animate-fade-in-up delay-400">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">🏄‍♂️</span>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold text-lg">Water Sports</h3>
+                    <p className="text-gray-300 text-sm">Jet ski, wakeboarding & paddle boarding</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             {/* Pricing Teaser */}
-            <SafeMotion
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 1.2 }}
-              className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-md rounded-2xl p-6 border border-cyan-400/30"
-            >
+            <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-md rounded-2xl p-6 border border-cyan-400/30">
               <div className="text-center">
-                <SafeMotion
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 1.4 }}
-                  className="text-cyan-200 text-sm font-medium mb-2"
-                >
-                  Starting from
-                </SafeMotion>
-                <SafeMotion
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 1.5 }}
-                  className="text-white text-3xl font-bold"
-                >
-                  £50
-                </SafeMotion>
-                <SafeMotion
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 1.6 }}
-                  className="text-gray-300 text-sm"
-                >
-                  per adult • Full day experience
-                </SafeMotion>
+                <p className="text-cyan-200 text-sm font-medium mb-2">Starting from</p>
+                <p className="text-white text-3xl font-bold">£50</p>
+                <p className="text-gray-300 text-sm">per adult • Full day experience</p>
               </div>
-            </SafeMotion>
+            </div>
 
-          </SafeMotion>
+          </div>
         </div>
       </div>
 
