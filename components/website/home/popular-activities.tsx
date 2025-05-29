@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
@@ -10,6 +10,23 @@ import { Calendar, Star, ArrowRight, Waves, Music, Camera, Anchor, Clock, Users,
 const PopularActivities = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: "-50px" });
+  const [isMobile, setIsMobile] = useState(false);
+  const [motionEnabled, setMotionEnabled] = useState(true);
+
+  // Check if mobile and disable motion if needed
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent);
+      setIsMobile(mobile);
+      
+      // Disable complex animations on mobile for better performance
+      if (mobile) {
+        setMotionEnabled(false);
+      }
+    };
+    
+    checkMobile();
+  }, []);
 
   const mainActivities = [
     {
@@ -98,6 +115,20 @@ const PopularActivities = () => {
     { icon: "🍌", title: "Banana Boat Rides", desc: "Perfect for big groups" }
   ];
 
+  // Safe motion component wrapper
+  const SafeMotion = ({ children, className, ...motionProps }: any) => {
+    if (!motionEnabled || isMobile) {
+      return <div className={className}>{children}</div>;
+    }
+    
+    try {
+      return <motion.div className={className} {...motionProps}>{children}</motion.div>;
+    } catch (error) {
+      console.warn('Motion animation failed, falling back to static:', error);
+      return <div className={className}>{children}</div>;
+    }
+  };
+
   interface ActivityCardProps {
     activity: typeof mainActivities[0];
     index: number;
@@ -129,7 +160,7 @@ const PopularActivities = () => {
               {/* Top Section */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <motion.div 
+                  <SafeMotion 
                     className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-2xl"
                     animate={{
                       scale: [1, 1.1, 1],
@@ -143,7 +174,7 @@ const PopularActivities = () => {
                     }}
                   >
                     {activity.icon}
-                  </motion.div>
+                  </SafeMotion>
                   <div className="flex flex-col gap-1">
                     <span className={`px-3 py-1 ${activity.price === 'Included' ? 'bg-green-500/80' : 'bg-orange-500/80'} backdrop-blur-sm rounded-full text-xs font-medium`}>
                       {activity.price}
@@ -213,7 +244,7 @@ const PopularActivities = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         
         {/* Section Header */}
-        <motion.div
+        <SafeMotion
           className="text-center mb-16 space-y-6"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -239,10 +270,10 @@ const PopularActivities = () => {
               is designed to create unforgettable memories in paradise.
             </p>
           </div>
-        </motion.div>
+        </SafeMotion>
 
         {/* Sliding Activities Carousel */}
-        <motion.div
+        <SafeMotion
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.6, delay: 0.3 }}
@@ -255,7 +286,7 @@ const PopularActivities = () => {
           <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-cyan-50/30 via-cyan-50/20 to-transparent z-10 pointer-events-none" />
           
           {/* Moving carousel */}
-          <motion.div
+          <SafeMotion
             className="flex items-center"
             animate={{
               x: [0, -2016], // Width calculation: 6 cards × (320px + 32px margin) = 2016px
@@ -273,11 +304,11 @@ const PopularActivities = () => {
                 index={index}
               />
             ))}
-          </motion.div>
-        </motion.div>
+          </SafeMotion>
+        </SafeMotion>
 
         {/* Additional Activities */}
-        <motion.div
+        <SafeMotion
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.6 }}
@@ -295,7 +326,7 @@ const PopularActivities = () => {
           {/* Activities Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
             {additionalActivities.map((item, index) => (
-              <motion.div
+              <SafeMotion
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -306,13 +337,13 @@ const PopularActivities = () => {
                   href="/experiences"
                   className="group p-4 bg-white rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 hover:border-cyan-200 transition-all duration-300 hover:scale-105 text-center block h-[140px] w-full flex flex-col items-center justify-center"
                 >
-                  <motion.div 
+                  <SafeMotion 
                     className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-300"
                     whileHover={{ rotate: [0, -10, 10, 0] }}
                     transition={{ duration: 0.5 }}
                   >
                     {item.icon}
-                  </motion.div>
+                  </SafeMotion>
                   <h4 className="font-semibold text-cyan-800 mb-1 text-sm leading-tight">
                     {item.title}
                   </h4>
@@ -320,20 +351,20 @@ const PopularActivities = () => {
                     {item.desc}
                   </p>
                 </Link>
-              </motion.div>
+              </SafeMotion>
             ))}
           </div>
-        </motion.div>
+        </SafeMotion>
 
         {/* Bottom CTA */}
-        <motion.div
+        <SafeMotion
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.6, delay: 1.2 }}
           className="text-center mt-16 space-y-6"
         >
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <motion.div
+            <SafeMotion
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -344,9 +375,9 @@ const PopularActivities = () => {
                 <Calendar className="w-5 h-5 mr-2" />
                 Book Your Adventure
               </Button>
-            </motion.div>
+            </SafeMotion>
             
-            <motion.div
+            <SafeMotion
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -360,9 +391,9 @@ const PopularActivities = () => {
                   View All Experiences
                 </Button>
               </Link>
-            </motion.div>
+            </SafeMotion>
           </div>
-        </motion.div>
+        </SafeMotion>
       </div>
     </section>
   );
