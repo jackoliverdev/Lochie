@@ -26,17 +26,33 @@ const config: FirebaseOptions = {
 
 const FirebaseProviderSDKs: FC<{ children: ReactNode }> = ({ children }) => {
   const firebase = useFirebaseApp();
+  
   // we have to use getters to pass to providers, children should use hooks
   const auth = useMemo(() => getAuth(), []);
-  const firestore = useMemo(() => getFirestore(firebase), []);
-  const analytics = useMemo(() => isBrowser() && getAnalytics(firebase), []);
+  const firestore = useMemo(() => getFirestore(firebase), [firebase]);
+  
+  // Wrap analytics initialization in try-catch to handle mobile/privacy issues
+  const analytics = useMemo(() => {
+    if (!isBrowser()) return null;
+    
+    try {
+      // Only initialize analytics if measurement ID is available
+      if (config.measurementId) {
+        return getAnalytics(firebase);
+      }
+      return null;
+    } catch (error) {
+      console.warn('Analytics initialization failed (this is normal on some mobile browsers):', error);
+      return null;
+    }
+  }, [firebase]);
 
   return (
     <>
       {auth && (
         <AuthProvider sdk={auth}>
           <FirestoreProvider sdk={firestore}>
-            {/* we can only use analytics in the browser */}
+            {/* Analytics is optional - app works without it */}
             {analytics ? (
               <AnalyticsProvider sdk={analytics}>{children}</AnalyticsProvider>
             ) : (
