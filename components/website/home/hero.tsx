@@ -8,11 +8,28 @@ import Image from 'next/image';
 
 const Hero = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [motionEnabled, setMotionEnabled] = useState(true);
   
   const images = [
     '/gili/gilit2.jpg',
     '/gili/gilit1.webp'
   ];
+
+  // Check if mobile and disable motion if needed
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent);
+      setIsMobile(mobile);
+      
+      // Disable complex animations on mobile for better performance
+      if (mobile) {
+        setMotionEnabled(false);
+      }
+    };
+    
+    checkMobile();
+  }, []);
 
   // Auto-rotate background images
   useEffect(() => {
@@ -51,6 +68,20 @@ const Hero = () => {
       bgColor: "bg-purple-500/20"
     }
   ];
+
+  // Safe motion component wrapper
+  const SafeMotion = ({ children, className, ...motionProps }: any) => {
+    if (!motionEnabled || isMobile) {
+      return <div className={className}>{children}</div>;
+    }
+    
+    try {
+      return <motion.div className={className} {...motionProps}>{children}</motion.div>;
+    } catch (error) {
+      console.warn('Motion animation failed, falling back to static:', error);
+      return <div className={className}>{children}</div>;
+    }
+  };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -99,7 +130,7 @@ const Hero = () => {
           <div className="text-white space-y-8">
             
             {/* Badge */}
-            <motion.div
+            <SafeMotion
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -107,10 +138,10 @@ const Hero = () => {
             >
               <Star className="w-4 h-4 fill-current" />
               <span>Luxury Boat Experience</span>
-            </motion.div>
+            </SafeMotion>
 
             {/* Main Heading */}
-            <motion.div
+            <SafeMotion
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -135,17 +166,17 @@ const Hero = () => {
                   From snorkeling with turtles to sunset cruises, create memories that last a lifetime.
                 </p>
               </div>
-            </motion.div>
+            </SafeMotion>
 
             {/* Features Grid */}
-            <motion.div
+            <SafeMotion
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
               className="grid grid-cols-2 gap-3"
             >
               {features.map((feature, index) => (
-                <motion.div 
+                <SafeMotion 
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -154,12 +185,12 @@ const Hero = () => {
                 >
                   <div className="w-2 h-2 bg-cyan-400 rounded-full group-hover:bg-cyan-300 transition-colors" />
                   <span>{feature}</span>
-                </motion.div>
+                </SafeMotion>
               ))}
-            </motion.div>
+            </SafeMotion>
 
             {/* CTA Buttons */}
-            <motion.div
+            <SafeMotion
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
@@ -181,10 +212,10 @@ const Hero = () => {
                 <Phone className="w-5 h-5 mr-2" />
                 +44 7936 524299
               </Button>
-            </motion.div>
+            </SafeMotion>
 
             {/* Location Badge */}
-            <motion.div
+            <SafeMotion
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 1 }}
@@ -192,11 +223,11 @@ const Hero = () => {
             >
               <MapPin className="w-5 h-5 text-cyan-400" />
               <span className="text-sm">Gili Trawangan, Lombok, Indonesia</span>
-            </motion.div>
+            </SafeMotion>
           </div>
 
           {/* Right Column - Experience Cards */}
-          <motion.div
+          <SafeMotion
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -206,7 +237,7 @@ const Hero = () => {
             {/* Floating Experience Cards */}
             <div className="space-y-4">
               {experienceCards.map((card, index) => (
-                <motion.div
+                <SafeMotion
                   key={index}
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -214,59 +245,59 @@ const Hero = () => {
                   className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105"
                 >
                   <div className="flex items-center gap-4">
-                    <motion.div 
+                    <SafeMotion 
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ duration: 0.4, delay: 0.8 + (index * 0.2) }}
                       className={`w-12 h-12 ${card.bgColor} rounded-xl flex items-center justify-center`}
                     >
                       <span className="text-2xl">{card.icon}</span>
-                    </motion.div>
+                    </SafeMotion>
                     <div>
                       <h3 className="text-white font-semibold text-lg">{card.title}</h3>
                       <p className="text-gray-300 text-sm">{card.description}</p>
                     </div>
                   </div>
-                </motion.div>
+                </SafeMotion>
               ))}
             </div>
 
             {/* Pricing Teaser */}
-            <motion.div
+            <SafeMotion
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 1.2 }}
               className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-md rounded-2xl p-6 border border-cyan-400/30"
             >
               <div className="text-center">
-                <motion.p
+                <SafeMotion
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 1.4 }}
                   className="text-cyan-200 text-sm font-medium mb-2"
                 >
                   Starting from
-                </motion.p>
-                <motion.p
+                </SafeMotion>
+                <SafeMotion
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 1.5 }}
                   className="text-white text-3xl font-bold"
                 >
                   £50
-                </motion.p>
-                <motion.p
+                </SafeMotion>
+                <SafeMotion
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 1.6 }}
                   className="text-gray-300 text-sm"
                 >
                   per adult • Full day experience
-                </motion.p>
+                </SafeMotion>
               </div>
-            </motion.div>
+            </SafeMotion>
 
-          </motion.div>
+          </SafeMotion>
         </div>
       </div>
 
