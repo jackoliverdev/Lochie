@@ -164,16 +164,46 @@ const BookingCalendar = () => {
       const date = new Date(year, month, day);
       const dateStr = date.toISOString().split('T')[0];
       
-      // Find availability for this date - using timestamp matching
+      // Find availability for this date - using timestamp matching with validation
       const dayAvailability = availability.filter(slot => {
-        const slotDate = new Date(slot.date);
-        return slotDate.toISOString().split('T')[0] === dateStr;
+        try {
+          // Validate slot.date exists and is a valid number/string
+          if (!slot.date && slot.date !== 0) return false;
+          
+          const slotDate = new Date(slot.date);
+          
+          // Check if the Date object is valid
+          if (isNaN(slotDate.getTime())) {
+            console.warn('Invalid slot date:', slot.date, 'for slot:', slot.id);
+            return false;
+          }
+          
+          return slotDate.toISOString().split('T')[0] === dateStr;
+        } catch (error) {
+          console.error('Error processing slot date:', slot.date, error);
+          return false;
+        }
       });
 
-      // Find pricing for this date
+      // Find pricing for this date with validation
       const dayPricing = pricing.filter(price => {
-        const priceDate = new Date(price.date);
-        return priceDate.toISOString().split('T')[0] === dateStr;
+        try {
+          // Validate price.date exists
+          if (!price.date) return false;
+          
+          const priceDate = new Date(price.date);
+          
+          // Check if the Date object is valid
+          if (isNaN(priceDate.getTime())) {
+            console.warn('Invalid price date:', price.date, 'for category:', price.categoryId);
+            return false;
+          }
+          
+          return priceDate.toISOString().split('T')[0] === dateStr;
+        } catch (error) {
+          console.error('Error processing price date:', price.date, error);
+          return false;
+        }
       });
 
       days.push({
