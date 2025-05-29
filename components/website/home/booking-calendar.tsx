@@ -413,26 +413,27 @@ const BookingCalendar = () => {
           </div>
 
           {/* Progress Steps */}
-          <div className="flex justify-center items-center gap-4 mt-8">
+          <div className="flex justify-center items-center gap-2 lg:gap-4 mt-6 lg:mt-8">
             {[
-              { step: 1, label: 'Select Date & Time', icon: CalendarIcon },
-              { step: 2, label: 'Guest Details', icon: User },
-              { step: 3, label: 'Confirmation', icon: CheckCircle }
-            ].map(({ step, label, icon: Icon }) => (
-              <div key={step} className="flex items-center gap-2">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+              { step: 1, label: 'Select Date & Time', shortLabel: 'Date & Time', icon: CalendarIcon },
+              { step: 2, label: 'Guest Details', shortLabel: 'Details', icon: User },
+              { step: 3, label: 'Confirmation', shortLabel: 'Confirm', icon: CheckCircle }
+            ].map(({ step, label, shortLabel, icon: Icon }) => (
+              <div key={step} className="flex items-center gap-1 lg:gap-2">
+                <div className={`w-8 lg:w-10 h-8 lg:h-10 rounded-full flex items-center justify-center text-xs lg:text-sm font-medium transition-all ${
                   bookingStep >= step 
                     ? 'bg-blue-500 text-white' 
                     : 'bg-gray-200 text-gray-500'
                 }`}>
-                  {bookingStep > step ? <CheckCircle className="w-5 h-5" /> : step}
+                  {bookingStep > step ? <CheckCircle className="w-4 lg:w-5 h-4 lg:h-5" /> : step}
                 </div>
-                <span className={`text-sm font-medium ${
+                <span className={`text-xs lg:text-sm font-medium ${
                   bookingStep >= step ? 'text-blue-600' : 'text-gray-500'
                 }`}>
-                  {label}
+                  <span className="hidden sm:inline">{label}</span>
+                  <span className="sm:hidden">{shortLabel}</span>
                 </span>
-                {step < 3 && <ArrowRight className="w-4 h-4 text-gray-300 ml-2" />}
+                {step < 3 && <ArrowRight className="w-3 lg:w-4 h-3 lg:h-4 text-gray-300 ml-1 lg:ml-2" />}
               </div>
             ))}
           </div>
@@ -447,7 +448,7 @@ const BookingCalendar = () => {
               <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
                 
                 {/* Calendar Header */}
-                <div className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-6">
+                <div className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-4 lg:p-6">
                   <div className="flex items-center justify-between">
                     <Button
                       variant="ghost"
@@ -459,10 +460,10 @@ const BookingCalendar = () => {
                     </Button>
 
                     <div className="text-center">
-                      <h3 className="text-2xl font-bold">
+                      <h3 className="text-xl lg:text-2xl font-bold">
                         {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                       </h3>
-                      <p className="text-blue-100 text-sm">Indonesian Daily Boat Charter</p>
+                      <p className="text-blue-100 text-xs lg:text-sm">Indonesian Daily Boat Charter</p>
                     </div>
 
                     <Button
@@ -477,18 +478,19 @@ const BookingCalendar = () => {
                 </div>
 
                 {/* Calendar Grid */}
-                <div className="p-6">
+                <div className="p-3 lg:p-6">
                   {/* Day Headers */}
-                  <div className="grid grid-cols-7 gap-2 mb-4">
+                  <div className="grid grid-cols-7 gap-1 lg:gap-2 mb-2 lg:mb-4">
                     {dayNames.map(day => (
-                      <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
-                        {day}
+                      <div key={day} className="text-center text-xs lg:text-sm font-medium text-gray-500 py-2">
+                        <span className="hidden sm:inline">{day}</span>
+                        <span className="sm:hidden">{day.substring(0, 1)}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* Calendar Days */}
-                  <div className="grid grid-cols-7 gap-2">
+                  <div className="grid grid-cols-7 gap-1 lg:gap-2">
                     {calendarDays.map((day, index) => {
                       const status = getAvailabilityStatus(day);
                       const price = getBestPrice(day);
@@ -500,18 +502,18 @@ const BookingCalendar = () => {
                           onClick={() => day.isCurrentMonth && !day.isPast && status !== 'unavailable' ? setSelectedDate(day.date) : null}
                           disabled={!day.isCurrentMonth || day.isPast || status === 'unavailable'}
                           className={`
-                            relative h-20 rounded-xl border-2 transition-all duration-300 hover:scale-105
+                            relative h-12 lg:h-20 rounded-lg lg:rounded-xl border-2 transition-all duration-300 touch-manipulation
                             ${!day.isCurrentMonth ? 'text-gray-300 border-transparent' : ''}
                             ${day.isPast ? 'text-gray-400 border-gray-200 cursor-not-allowed' : ''}
-                            ${day.isToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
+                            ${day.isToday ? 'ring-2 ring-blue-500 ring-offset-1 lg:ring-offset-2' : ''}
                             ${isSelected ? 'border-blue-500 bg-blue-50 shadow-lg scale-105' : ''}
-                            ${status === 'available' && !day.isPast ? 'border-green-200 bg-green-50 hover:border-green-400' : ''}
-                            ${status === 'limited' && !day.isPast ? 'border-yellow-200 bg-yellow-50 hover:border-yellow-400' : ''}
+                            ${status === 'available' && !day.isPast ? 'border-green-200 bg-green-50 hover:border-green-400 active:scale-95' : ''}
+                            ${status === 'limited' && !day.isPast ? 'border-yellow-200 bg-yellow-50 hover:border-yellow-400 active:scale-95' : ''}
                             ${status === 'unavailable' && !day.isPast ? 'border-gray-200 bg-gray-50' : ''}
                           `}
                         >
                           {/* Date */}
-                          <div className="text-sm font-semibold mb-1">
+                          <div className="text-xs lg:text-sm font-semibold mb-1">
                             {day.date.getDate()}
                           </div>
 
@@ -524,9 +526,9 @@ const BookingCalendar = () => {
                             </div>
                           )}
 
-                          {/* Price */}
+                          {/* Price - Hidden on mobile due to space */}
                           {price && day.isCurrentMonth && !day.isPast && (
-                            <div className="text-xs font-medium text-blue-600 absolute bottom-1 left-1 right-1">
+                            <div className="hidden lg:block text-xs font-medium text-blue-600 absolute bottom-1 left-1 right-1">
                               {price}
                             </div>
                           )}
@@ -536,18 +538,18 @@ const BookingCalendar = () => {
                   </div>
 
                   {/* Legend */}
-                  <div className="flex justify-center gap-6 mt-6 pt-6 border-t">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span className="text-sm text-gray-600">Available</span>
+                  <div className="flex justify-center gap-3 lg:gap-6 mt-4 lg:mt-6 pt-4 lg:pt-6 border-t">
+                    <div className="flex items-center gap-1 lg:gap-2">
+                      <div className="w-2 lg:w-3 h-2 lg:h-3 bg-green-500 rounded-full"></div>
+                      <span className="text-xs lg:text-sm text-gray-600">Available</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                      <span className="text-sm text-gray-600">Limited</span>
+                    <div className="flex items-center gap-1 lg:gap-2">
+                      <div className="w-2 lg:w-3 h-2 lg:h-3 bg-yellow-500 rounded-full"></div>
+                      <span className="text-xs lg:text-sm text-gray-600">Limited</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                      <span className="text-sm text-gray-600">Unavailable</span>
+                    <div className="flex items-center gap-1 lg:gap-2">
+                      <div className="w-2 lg:w-3 h-2 lg:h-3 bg-gray-400 rounded-full"></div>
+                      <span className="text-xs lg:text-sm text-gray-600">Unavailable</span>
                     </div>
                   </div>
                 </div>
@@ -559,19 +561,28 @@ const BookingCalendar = () => {
               
               {/* Selected Date Time Slots */}
               {selectedDate && (
-                <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">
-                    {selectedDate.toLocaleDateString('en-GB', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}
+                <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 lg:p-6">
+                  <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4">
+                    <span className="hidden lg:inline">
+                      {selectedDate.toLocaleDateString('en-GB', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
+                    </span>
+                    <span className="lg:hidden">
+                      {selectedDate.toLocaleDateString('en-GB', { 
+                        weekday: 'short', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
+                    </span>
                   </h3>
 
                   {/* Available Time Slots */}
                   <div className="space-y-3">
-                    <h4 className="font-medium text-gray-700 mb-3">Available Times</h4>
+                    <h4 className="font-medium text-gray-700 mb-3 text-sm lg:text-base">Available Times</h4>
                     {calendarDays.find(day => day.date.toDateString() === selectedDate.toDateString())?.availability?.map((slot, index) => {
                       const dayPricing = calendarDays.find(day => day.date.toDateString() === selectedDate.toDateString())?.pricing?.[0];
                       const pricePerPerson = dayPricing?.convertedPrice?.display || '£50';
@@ -581,17 +592,17 @@ const BookingCalendar = () => {
                           key={index}
                           onClick={() => selectTimeSlot(slot)}
                           disabled={slot.soldOut || slot.unavailable || slot.availabilityCount <= 0}
-                          className="w-full border rounded-2xl p-4 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full border rounded-xl lg:rounded-2xl p-3 lg:p-4 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4 text-blue-500" />
-                              <span className="font-medium">
+                              <span className="font-medium text-sm lg:text-base">
                                 {slot.startTime}
                               </span>
                             </div>
                             <div className="text-right">
-                              <div className="text-lg font-bold text-blue-600">{pricePerPerson}</div>
+                              <div className="text-base lg:text-lg font-bold text-blue-600">{pricePerPerson}</div>
                               <div className="text-xs text-gray-500">per person</div>
                             </div>
                           </div>
@@ -599,7 +610,7 @@ const BookingCalendar = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <Users className="w-4 h-4 text-gray-500" />
-                              <span className="text-sm text-gray-600">
+                              <span className="text-xs lg:text-sm text-gray-600">
                                 {slot.availabilityCount} available
                               </span>
                             </div>
@@ -615,47 +626,47 @@ const BookingCalendar = () => {
               )}
 
               {/* Quick Stats */}
-              <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Adventure Stats</h3>
+              <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 lg:p-6">
+                <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-4">Adventure Stats</h3>
                 
-                <div className="space-y-4">
+                <div className="space-y-3 lg:space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                      <Star className="w-5 h-5 text-blue-600" />
+                    <div className="w-8 lg:w-10 h-8 lg:h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <Star className="w-4 lg:w-5 h-4 lg:h-5 text-blue-600" />
                     </div>
                     <div>
-                      <div className="font-medium">4.9★ Rating</div>
-                      <div className="text-sm text-gray-500">From 200+ reviews</div>
+                      <div className="font-medium text-sm lg:text-base">4.9★ Rating</div>
+                      <div className="text-xs lg:text-sm text-gray-500">From 200+ reviews</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                      <Clock className="w-5 h-5 text-green-600" />
+                    <div className="w-8 lg:w-10 h-8 lg:h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                      <Clock className="w-4 lg:w-5 h-4 lg:h-5 text-green-600" />
                     </div>
                     <div>
-                      <div className="font-medium">8 Hour Experience</div>
-                      <div className="text-sm text-gray-500">Full day adventure</div>
+                      <div className="font-medium text-sm lg:text-base">8 Hour Experience</div>
+                      <div className="text-xs lg:text-sm text-gray-500">Full day adventure</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                      <Users className="w-5 h-5 text-purple-600" />
+                    <div className="w-8 lg:w-10 h-8 lg:h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                      <Users className="w-4 lg:w-5 h-4 lg:h-5 text-purple-600" />
                     </div>
                     <div>
-                      <div className="font-medium">Up to 8 Guests</div>
-                      <div className="text-sm text-gray-500">Private charter</div>
+                      <div className="font-medium text-sm lg:text-base">Up to 8 Guests</div>
+                      <div className="text-xs lg:text-sm text-gray-500">Private charter</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-cyan-100 rounded-xl flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-cyan-600" />
+                    <div className="w-8 lg:w-10 h-8 lg:h-10 bg-cyan-100 rounded-xl flex items-center justify-center">
+                      <MapPin className="w-4 lg:w-5 h-4 lg:h-5 text-cyan-600" />
                     </div>
                     <div>
-                      <div className="font-medium">Gili Trawangan</div>
-                      <div className="text-sm text-gray-500">Lombok, Indonesia</div>
+                      <div className="font-medium text-sm lg:text-base">Gili Trawangan</div>
+                      <div className="text-xs lg:text-sm text-gray-500">Lombok, Indonesia</div>
                     </div>
                   </div>
                 </div>
@@ -667,30 +678,30 @@ const BookingCalendar = () => {
         {/* Step 2: Guest Details */}
         {bookingStep === 2 && booking.selectedSlot && selectedDate && (
           <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
+            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 lg:p-8">
               
               {/* Booking Summary */}
-              <div className="bg-blue-50 rounded-2xl p-6 mb-8">
-                <h3 className="text-xl font-bold text-blue-900 mb-4">Booking Summary</h3>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  <div>
+              <div className="bg-blue-50 rounded-2xl p-4 lg:p-6 mb-6 lg:mb-8">
+                <h3 className="text-lg lg:text-xl font-bold text-blue-900 mb-4">Booking Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 text-sm">
+                  <div className="space-y-1">
                     <div><strong>Date:</strong> {selectedDate.toLocaleDateString('en-GB')}</div>
                     <div><strong>Time:</strong> {booking.selectedSlot.startTime}</div>
                   </div>
-                  <div>
+                  <div className="space-y-1">
                     <div><strong>Duration:</strong> 8 hours</div>
                     <div><strong>Capacity:</strong> {booking.selectedSlot.availabilityCount} available</div>
                   </div>
                 </div>
               </div>
 
-              {/* Guest Selection */}
-              <div className="mb-8">
-                <Label className="text-lg font-semibold mb-4 block">Number of Guests</Label>
-                <div className="flex items-center gap-4">
+              {/* Guest Selection - Mobile Optimized */}
+              <div className="mb-6 lg:mb-8">
+                <Label className="text-base lg:text-lg font-semibold mb-4 block">Number of Guests</Label>
+                <div className="flex items-center justify-center gap-4 bg-gray-50 rounded-xl p-4">
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="lg"
                     onClick={() => {
                       const newGuestCount = Math.max(1, booking.guests - 1);
                       setBooking(prev => ({ 
@@ -700,15 +711,19 @@ const BookingCalendar = () => {
                       }));
                     }}
                     disabled={booking.guests <= 1}
+                    className="touch-manipulation p-3"
                   >
-                    <Minus className="w-4 h-4" />
+                    <Minus className="w-5 h-5" />
                   </Button>
-                  <span className="text-2xl font-bold text-blue-600 min-w-[3rem] text-center">
-                    {booking.guests}
-                  </span>
+                  <div className="flex flex-col items-center min-w-[4rem]">
+                    <span className="text-3xl lg:text-4xl font-bold text-blue-600">
+                      {booking.guests}
+                    </span>
+                    <span className="text-xs text-gray-600">guests</span>
+                  </div>
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="lg"
                     onClick={() => {
                       const newGuestCount = Math.min(8, booking.guests + 1);
                       setBooking(prev => ({ 
@@ -726,43 +741,42 @@ const BookingCalendar = () => {
                       }));
                     }}
                     disabled={booking.guests >= 8}
+                    className="touch-manipulation p-3"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-5 h-5" />
                   </Button>
-                  <span className="text-gray-600 ml-4">
-                    guests (max 8)
-                  </span>
                 </div>
+                <p className="text-center text-sm text-gray-600 mt-2">Maximum 8 guests</p>
               </div>
 
               {/* Price Calculation */}
-              <div className="bg-green-50 rounded-2xl p-6 mb-8">
+              <div className="bg-green-50 rounded-2xl p-4 lg:p-6 mb-6 lg:mb-8">
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="text-lg font-semibold text-green-900">Total Price</div>
+                    <div className="text-base lg:text-lg font-semibold text-green-900">Total Price</div>
                     <div className="text-sm text-green-700">
                       {booking.guests} guests × {calendarDays.find(day => day.date.toDateString() === selectedDate.toDateString())?.pricing?.[0]?.convertedPrice?.display || '£50'}
                     </div>
                   </div>
-                  <div className="text-3xl font-bold text-green-600">
+                  <div className="text-2xl lg:text-3xl font-bold text-green-600">
                     £{calculateTotalPrice()}
                   </div>
                 </div>
               </div>
 
-              {/* Guest Details Forms */}
-              <div className="space-y-8">
-                <h4 className="text-lg font-semibold">Guest Details</h4>
+              {/* Guest Details Forms - Mobile Optimized */}
+              <div className="space-y-6 lg:space-y-8">
+                <h4 className="text-base lg:text-lg font-semibold">Guest Details</h4>
                 
                 {Array.from({ length: booking.guests }, (_, index) => (
-                  <div key={index} className="border border-gray-200 rounded-xl p-6 bg-gray-50">
-                    <h5 className="text-md font-semibold mb-4 text-blue-600">
+                  <div key={index} className="border border-gray-200 rounded-xl p-4 lg:p-6 bg-gray-50">
+                    <h5 className="text-sm lg:text-md font-semibold mb-4 text-blue-600">
                       {index === 0 ? 'Lead Guest (Main Contact)' : `Guest ${index + 1}`}
                     </h5>
                     
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
                       <div>
-                        <Label htmlFor={`firstName-${index}`}>First Name</Label>
+                        <Label htmlFor={`firstName-${index}`} className="text-sm font-medium">First Name</Label>
                         <Input
                           id={`firstName-${index}`}
                           value={booking.guestDetails[index]?.firstName || ''}
@@ -782,11 +796,12 @@ const BookingCalendar = () => {
                           }}
                           placeholder="Enter first name"
                           required
+                          className="mt-1 text-base touch-manipulation"
                         />
                       </div>
                       
                       <div>
-                        <Label htmlFor={`lastName-${index}`}>Last Name</Label>
+                        <Label htmlFor={`lastName-${index}`} className="text-sm font-medium">Last Name</Label>
                         <Input
                           id={`lastName-${index}`}
                           value={booking.guestDetails[index]?.lastName || ''}
@@ -806,11 +821,12 @@ const BookingCalendar = () => {
                           }}
                           placeholder="Enter last name"
                           required
+                          className="mt-1 text-base touch-manipulation"
                         />
                       </div>
 
                       <div>
-                        <Label htmlFor={`email-${index}`}>Email Address</Label>
+                        <Label htmlFor={`email-${index}`} className="text-sm font-medium">Email Address</Label>
                         <Input
                           id={`email-${index}`}
                           type="email"
@@ -831,11 +847,12 @@ const BookingCalendar = () => {
                           }}
                           placeholder="Enter email address"
                           required
+                          className="mt-1 text-base touch-manipulation"
                         />
                       </div>
 
                       <div>
-                        <Label htmlFor={`phone-${index}`}>Phone Number</Label>
+                        <Label htmlFor={`phone-${index}`} className="text-sm font-medium">Phone Number</Label>
                         <Input
                           id={`phone-${index}`}
                           type="tel"
@@ -856,6 +873,7 @@ const BookingCalendar = () => {
                           }}
                           placeholder="Enter phone number"
                           required
+                          className="mt-1 text-base touch-manipulation"
                         />
                       </div>
                     </div>
@@ -863,27 +881,12 @@ const BookingCalendar = () => {
                 ))}
               </div>
 
-              {/* Price Calculation */}
-              <div className="bg-green-50 rounded-2xl p-6 mb-8">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="text-lg font-semibold text-green-900">Total Price</div>
-                    <div className="text-sm text-green-700">
-                      {booking.guests} guests × {calendarDays.find(day => day.date.toDateString() === selectedDate.toDateString())?.pricing?.[0]?.convertedPrice?.display || '£50'}
-                    </div>
-                  </div>
-                  <div className="text-3xl font-bold text-green-600">
-                    £{calculateTotalPrice()}
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-4 mt-8">
+              {/* Action Buttons - Mobile Optimized */}
+              <div className="flex flex-col lg:flex-row gap-3 lg:gap-4 mt-6 lg:mt-8">
                 <Button
                   variant="outline"
                   onClick={() => setBookingStep(1)}
-                  className="flex-1"
+                  className="w-full lg:flex-1 py-3 text-base touch-manipulation"
                 >
                   Back to Calendar
                 </Button>
@@ -897,7 +900,7 @@ const BookingCalendar = () => {
                       !guest.firstName || !guest.lastName || !guest.email || !guest.phone
                     )
                   }
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  className="w-full lg:flex-1 bg-blue-600 hover:bg-blue-700 py-3 text-base touch-manipulation"
                 >
                   {loading ? (
                     <>
@@ -918,20 +921,20 @@ const BookingCalendar = () => {
 
         {/* Step 3: Confirmation */}
         {bookingStep === 3 && (
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-10 h-10 text-green-600" />
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 lg:p-8">
+              <div className="w-16 lg:w-20 h-16 lg:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="w-8 lg:w-10 h-8 lg:h-10 text-green-600" />
               </div>
               
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">Booking Confirmed!</h3>
-              <p className="text-xl text-gray-600 mb-8">
+              <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4 text-center">Booking Confirmed!</h3>
+              <p className="text-lg lg:text-xl text-gray-600 mb-6 lg:mb-8 text-center">
                 Thank you for booking with us. We've sent a confirmation email to {booking.customerInfo.email}
               </p>
 
               {/* Real booking confirmation details */}
               {booking.bookingResult && (
-                <div className="bg-green-50 rounded-2xl p-6 mb-8 text-left">
+                <div className="bg-green-50 rounded-2xl p-4 lg:p-6 mb-6 lg:mb-8 text-left">
                   <h4 className="font-semibold text-green-900 mb-4">Booking Confirmation</h4>
                   <div className="space-y-2 text-sm">
                     <div><strong>Booking ID:</strong> {booking.bookingResult.bookingId}</div>
@@ -941,7 +944,7 @@ const BookingCalendar = () => {
                 </div>
               )}
 
-              <div className="bg-blue-50 rounded-2xl p-6 mb-8 text-left">
+              <div className="bg-blue-50 rounded-2xl p-4 lg:p-6 mb-6 lg:mb-8 text-left">
                 <h4 className="font-semibold text-blue-900 mb-4">Trip Details</h4>
                 <div className="space-y-2 text-sm">
                   <div><strong>Date:</strong> {selectedDate?.toLocaleDateString('en-GB')}</div>
@@ -956,18 +959,18 @@ const BookingCalendar = () => {
               <div className="space-y-4">
                 <Button
                   onClick={resetBooking}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full bg-blue-600 hover:bg-blue-700 py-3 text-base touch-manipulation"
                 >
                   Book Another Adventure
                 </Button>
                 
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 text-center">
                   Questions? Call us at <strong>+44 7936 524299</strong>
                 </div>
 
                 {/* Display Bokun message if available */}
                 {booking.bookingResult?.message && (
-                  <div className="text-xs text-green-600 mt-4">
+                  <div className="text-xs text-green-600 mt-4 text-center">
                     {booking.bookingResult.message}
                   </div>
                 )}

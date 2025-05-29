@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Phone, MapPin, Calendar, Star, Waves, Anchor } from 'lucide-react';
 import Image from 'next/image';
@@ -31,7 +32,7 @@ const Hero = () => {
   ];
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden pt-12 sm:pt-24 lg:pt-0 pb-8 lg:pb-0">
       {/* Background Images with Transition */}
       <div className="absolute inset-0 z-0">
         {images.map((image, index) => (
@@ -58,16 +59,48 @@ const Hero = () => {
       </div>
 
       {/* Floating Elements */}
-      <div className="absolute top-20 right-20 z-20 hidden lg:block">
-        <div className="animate-float">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        transition={{ duration: 1, delay: 1.5, ease: "easeOut" }}
+        className="absolute top-20 right-20 z-20 hidden lg:block"
+      >
+        <motion.div
+          animate={{ 
+            y: [0, -15, 0],
+            rotate: [0, 5, -5, 0]
+          }}
+          transition={{ 
+            duration: 4, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+        >
           <Waves className="w-16 h-16 text-cyan-400/60" />
-        </div>
-      </div>
-      <div className="absolute bottom-32 right-32 z-20 hidden lg:block">
-        <div className="animate-float-delayed">
+        </motion.div>
+      </motion.div>
+      
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8, rotate: 10 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        transition={{ duration: 1, delay: 2, ease: "easeOut" }}
+        className="absolute bottom-32 right-32 z-20 hidden lg:block"
+      >
+        <motion.div
+          animate={{ 
+            y: [0, -10, 0],
+            rotate: [0, -3, 3, 0]
+          }}
+          transition={{ 
+            duration: 5, 
+            repeat: Infinity, 
+            ease: "easeInOut",
+            delay: 1 
+          }}
+        >
           <Anchor className="w-12 h-12 text-blue-400/50" />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Main Content */}
       <div className="relative z-30 max-w-7xl mx-auto px-6 lg:px-8 py-20">
@@ -77,13 +110,23 @@ const Hero = () => {
           <div className="text-white space-y-8">
             
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-cyan-500/20 backdrop-blur-sm border border-cyan-400/30 rounded-full px-4 py-2 text-cyan-200 text-sm font-medium">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="inline-flex items-center gap-2 bg-cyan-500/20 backdrop-blur-sm border border-cyan-400/30 rounded-full px-4 py-2 text-cyan-200 text-sm font-medium"
+            >
               <Star className="w-4 h-4 fill-current" />
               <span>Luxury Boat Experience</span>
-            </div>
+            </motion.div>
 
             {/* Main Heading */}
-            <div className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="space-y-4"
+            >
               <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
                 <span className="block text-white">
                   Jasper{" "}
@@ -94,7 +137,12 @@ const Hero = () => {
                 <span className="block text-white">Boat Tours</span>
               </h1>
               
-              <div className="space-y-2">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="space-y-2"
+              >
                 <p className="text-xl lg:text-2xl text-cyan-100 font-light">
                   Luxury Boat Charters in Gili Islands & Lombok
                 </p>
@@ -102,115 +150,203 @@ const Hero = () => {
                   Experience unforgettable tours with stunning views and activities in paradise. 
                   From snorkeling with turtles to sunset cruises, create memories that last a lifetime.
                 </p>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* Features Grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.0 }}
+              className="grid grid-cols-2 gap-3"
+            >
               {features.map((feature, index) => (
-                <div 
+                <motion.div
                   key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 1.2 + (index * 0.1) }}
                   className="flex items-center gap-2 text-sm text-gray-200 group hover:text-cyan-300 transition-colors"
                 >
                   <div className="w-2 h-2 bg-cyan-400 rounded-full group-hover:bg-cyan-300 transition-colors" />
                   <span>{feature}</span>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button 
-                size="lg" 
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-4 text-lg font-semibold shadow-2xl shadow-cyan-500/25 transition-all duration-300 hover:scale-105"
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.6 }}
+              className="flex flex-col sm:flex-row gap-4 pt-4"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <Calendar className="w-5 h-5 mr-2" />
-                Book Your Adventure
-              </Button>
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-4 text-lg font-semibold shadow-2xl shadow-cyan-500/25 transition-all duration-300"
+                >
+                  <Calendar className="w-5 h-5 mr-2" />
+                  Book Your Adventure
+                </Button>
+              </motion.div>
               
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="border-2 border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105"
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <Phone className="w-5 h-5 mr-2" />
-                +44 7936 524299
-              </Button>
-            </div>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="border-2 border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 px-8 py-4 text-lg font-semibold transition-all duration-300"
+                >
+                  <Phone className="w-5 h-5 mr-2" />
+                  +44 7936 524299
+                </Button>
+              </motion.div>
+            </motion.div>
 
             {/* Location Badge */}
-            <div className="flex items-center gap-2 text-gray-300">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.8 }}
+              className="flex items-center gap-2 text-gray-300"
+            >
               <MapPin className="w-5 h-5 text-cyan-400" />
               <span className="text-sm">Gili Trawangan, Lombok, Indonesia</span>
-            </div>
+            </motion.div>
           </div>
 
           {/* Right Column - Experience Cards */}
-          <div className="space-y-6 lg:pl-8">
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.8 }}
+            className="space-y-6 lg:pl-8"
+          >
             
             {/* Floating Experience Cards */}
             <div className="space-y-4">
               
               {/* Card 1 - Snorkeling */}
-              <div className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 animate-fade-in-up">
+              <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, delay: 1.2 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer"
+              >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center">
+                  <motion.div
+                    whileHover={{ rotate: 10, scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center"
+                  >
                     <span className="text-2xl">🐢</span>
-                  </div>
+                  </motion.div>
                   <div>
                     <h3 className="text-white font-semibold text-lg">Marine Adventures</h3>
                     <p className="text-gray-300 text-sm">Swim with turtles, manta rays & tropical fish</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Card 2 - Luxury */}
-              <div className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 animate-fade-in-up delay-200">
+              <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, delay: 1.4 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer"
+              >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                  <motion.div
+                    whileHover={{ rotate: -10, scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center"
+                  >
                     <span className="text-2xl">🍹</span>
-                  </div>
+                  </motion.div>
                   <div>
                     <h3 className="text-white font-semibold text-lg">Luxury Amenities</h3>
                     <p className="text-gray-300 text-sm">Mini bar, sound system & premium comfort</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Card 3 - Adventure */}
-              <div className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 animate-fade-in-up delay-400">
+              <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, delay: 1.6 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="bg-white/15 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer"
+              >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                  <motion.div
+                    whileHover={{ rotate: 10, scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center"
+                  >
                     <span className="text-2xl">🏄‍♂️</span>
-                  </div>
+                  </motion.div>
                   <div>
                     <h3 className="text-white font-semibold text-lg">Water Sports</h3>
                     <p className="text-gray-300 text-sm">Jet ski, wakeboarding & paddle boarding</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
             </div>
 
             {/* Pricing Teaser */}
-            <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-md rounded-2xl p-6 border border-cyan-400/30">
-              <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.6, delay: 1.8 }}
+              whileHover={{ scale: 1.02 }}
+              className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-md rounded-2xl p-6 border border-cyan-400/30"
+            >
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 2.0 }}
+                className="text-center"
+              >
                 <p className="text-cyan-200 text-sm font-medium mb-2">Starting from</p>
-                <p className="text-white text-3xl font-bold">£50</p>
+                <motion.p
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20, delay: 2.2 }}
+                  className="text-white text-3xl font-bold"
+                >
+                  £50
+                </motion.p>
                 <p className="text-gray-300 text-sm">per adult • Full day experience</p>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Bottom Wave Effect */}
-      <div className="absolute bottom-0 left-0 right-0 z-20">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 2.5 }}
+        className="absolute bottom-0 left-0 right-0 z-20"
+      >
         <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-20 fill-white">
           <path d="M0,120 C150,100 300,80 600,80 C900,80 1050,100 1200,120 L1200,120 L0,120 Z" />
         </svg>
-      </div>
+      </motion.div>
     </div>
   );
 };
