@@ -1,34 +1,41 @@
-# Venefish 🐟
+# Jasper Luxury Boat Tours 🛥️
 
-### Boilerplate for React TypeScript projects using Next.js, shadcn/ui, Tailwind and Firebase on Vercel!
+### Premium luxury boat tours and unforgettable experiences in the Gili Islands, Indonesia
 
-> Now using Next.js app router!
+> Experience the magic of Gili Islands with our premium boat tours, snorkelling adventures, and luxury experiences.
 
-This stack is 🔥 because projects can be built and deployed for free until you get to higher tiers within Vercel/Firebase which only happens once you get lots of DAUs.
+Our website features:
 
-- **Ve**rcel for cloud and automated deployments
-- **Ne**xt.js for better React
-- **Fi**rebase for auth and database (Firestore)
-- **Sh**adcn and Tailwind for UI/styling
+- **Premium Boat Tours** - Luxury experiences around the Gili Islands
+- **Online Booking System** - Easy booking and payment processing
+- **Gallery & Experiences** - Showcase of our tours and adventures
+- **Mobile-Optimised Design** - Beautiful, responsive design for all devices
+- **Fast & Secure** - Built with Next.js, Firebase, and deployed on Vercel
 
-**Let me know if you have any questions! Godspeed.**
+**Contact us to book your next adventure!**
 
-## Setup
+## Features
 
-1. Make sure your Firebase project has authentication added
-1. Get your public Firebase config and paste it into `components\firebase-providers.tsx`
-1. `npm i` and `npm run dev`
+- 🏝️ **Gili Islands Tours** - Explore Gili Trawangan, Gili Meno, and Gili Air
+- 🤿 **Snorkelling Adventures** - Discover underwater wonders
+- 🛥️ **Luxury Boat Experiences** - Premium boats and equipment
+- 📱 **Easy Online Booking** - Secure payment processing
+- 📞 **Direct Contact** - Call us at +44 7936 524299
+- 📧 **Email Support** - info@jasperluxury.com
 
-The following is only needed if you want to use `firebase/admin` (not part of this project by default)
+## Tech Stack
 
-1. Create a new file at the root level called `.env.local`
-1. Define a new variable there called `FIREBASE_ADMIN_SDK`
-1. Get your Firebase service account private key and stringify it then set the above variable to that string
-   > e.g.: `FIREBASE_ADMIN_SDK={"type":"service_account","project_id":"sleeptoken",...}`
+- **Next.js** - React framework with app router
+- **Firebase** - Authentication and database (Firestore)
+- **Tailwind CSS** - Modern styling and responsive design
+- **Shadcn/ui** - Beautiful UI components
+- **Vercel** - Fast and reliable hosting
 
-### Notes
+## Contact
 
-- You can use `api/test.ts` to stringify your private key so you can use in in the environment
-- You need to define the same `FIREBASE_ADMIN_SDK` environment variable in Vercel
+📧 Email: info@jasperluxury.com  
+📞 Phone: +44 7936 524299  
+🌐 Website: https://jasperluxury.com  
+📍 Location: Gili Islands, Indonesia
 
-**Created by [⬡ Enesien Software](https://enesien.com)**
+**Experience the magic of the Gili Islands with Jasper Luxury Boat Tours**

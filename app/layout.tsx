@@ -10,9 +10,29 @@ import { ClientWrapper } from "@/components/client-wrapper";
 const font = Work_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Venefish | Vercel Next.JS Firebase Shadcn/ui Tailwind Boilerplate",
+  title: "Jasper Luxury Boat Tours | Premium Gili Islands Experiences",
   description:
-    "Venefish is a Vercel Next.JS Firebase Shadcn/ui Tailwind Boilerplate project to help you get started with your next project.",
+    "Experience the magic of Gili Islands with Jasper Luxury Boat Tours. Premium boat tours, snorkelling adventures, and unforgettable experiences in Indonesia.",
+  keywords: "Gili Islands, boat tours, luxury tours, snorkelling, Indonesia, Lombok, premium experiences, water sports",
+  authors: [{ name: "Jasper Luxury Boat Tours" }],
+  openGraph: {
+    title: "Jasper Luxury Boat Tours | Premium Gili Islands Experiences",
+    description: "Experience the magic of Gili Islands with our premium luxury boat tours and unforgettable adventures.",
+    images: ["/gili/jasperlogo.png"],
+    url: "https://jasperluxury.com",
+    siteName: "Jasper Luxury Boat Tours",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jasper Luxury Boat Tours | Premium Gili Islands Experiences",
+    description: "Experience the magic of Gili Islands with our premium luxury boat tours and unforgettable adventures.",
+    images: ["/gili/jasperlogo.png"],
+  },
+  icons: {
+    icon: "/gili/jasperlogo.png",
+    apple: "/gili/jasperlogo.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
